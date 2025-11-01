@@ -13,7 +13,7 @@ import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"; // �
 const App = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoName, setNewTodoName] = useState("");
-  const [newTodoPriority, setNewTodoPriority] = useState(3);
+  const [newTodoPriority, setNewTodoPriority] = useState("あっかーん!");
   const [newTodoDeadline, setNewTodoDeadline] = useState<Date | null>(null);
   const [newTodoNameError, setNewTodoNameError] = useState("");
   const [initialized, setInitialized] = useState(false); // ◀◀ 追加
@@ -58,9 +58,7 @@ const App = () => {
     setNewTodoName(e.target.value);
   };
 
-  const updateNewTodoPriority = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodoPriority(Number(e.target.value));
-  };
+
 
   const updateDeadline = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dt = e.target.value; // UIで日時が未設定のときは空文字列 "" が dt に格納される
@@ -85,7 +83,7 @@ const App = () => {
     const updatedTodos = [...todos, newTodo];
     setTodos(updatedTodos);
     setNewTodoName("");
-    setNewTodoPriority(3);
+    setNewTodoPriority("あっかーん!");
     setNewTodoDeadline(null);
   };
 
@@ -123,7 +121,7 @@ const remove = (id: string) => {
       <TodoList todos={todos} updateIsDone={updateIsDone} remove={remove} />
 
       <div className="mt-5 space-y-2 rounded-md border p-3">
-        <h2 className="text-lg font-bold">新しいタスクの追加</h2>
+        <h2 className="text-lg font-bold">新しいタスクの追加しよう!</h2>
         {/* 編集: ここから... */}
         <div>
           <div className="flex items-center space-x-2">
@@ -156,7 +154,7 @@ const remove = (id: string) => {
 
         <div className="flex gap-5">
           <div className="font-bold">優先度</div>
-          {[1, 2, 3].map((value) => (
+          {["やばいかも..", "やばいッ", "あっかーん!"].map((value) => (
             <label key={value} className="flex items-center space-x-1">
               <input
                 id={`priority-${value}`}
@@ -164,7 +162,7 @@ const remove = (id: string) => {
                 type="radio"
                 value={value}
                 checked={newTodoPriority === value}
-                onChange={updateNewTodoPriority}
+                onChange={(e) => setNewTodoPriority(e.target.value)} // ← 直接更新
               />
               <span>{value}</span>
             </label>
@@ -196,7 +194,7 @@ const remove = (id: string) => {
             newTodoNameError && "cursor-not-allowed opacity-50"
           )}
         >
-          追加
+          追加!
         </button>
 
         <button
@@ -206,7 +204,7 @@ const remove = (id: string) => {
     "mt-5 rounded-md bg-red-500 px-3 py-1 font-bold text-white hover:bg-red-600"
   }
 >
-  完了済みのタスクを削除
+  完了済みのタスクを削除!
 </button>
       </div>
     </div>

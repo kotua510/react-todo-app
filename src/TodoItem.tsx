@@ -11,7 +11,7 @@ const TodoItem = (props: Props) => {
   const { todo } = props; // 分割代入でもOK
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between rounded-md border-2 p-3">
       <div className="flex items-center">
         <input
           type="checkbox"

@@ -34,13 +34,13 @@ const TodoList = (props: Props) => {
   if (todos.length === 0) {
     return (
       <div className="text-red-500">
-        現在、登録されているタスクはありません。
+        現在、為すべきことはありません!。
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 ">
       {todos.map((todo) => (
         <TodoItem
           key={todo.id}
