@@ -1,52 +1,45 @@
-
 import React from "react";
 import type { Todo } from "./types";
-import TodoItem from "./TodoItem"; // ◀◀ 追加
+import TodoItem from "./TodoItem";
 
 type Props = {
   todos: Todo[];
   updateIsDone: (id: string, value: boolean) => void;
   remove: (id: string) => void;
+  updateMemo: (id: string, newMemo: string) => void;
+  updateSubIsDone: (todoId: string, subId: string) => void; // ✅ 追加！ // ← 追加！
+  addSubTodo: (parentId: string, name: string) => void;
+  removeSubTodo:(parentId: string, subId: string) => void;
+  removeCompletedSubTodos:(parentId: string) => void;
 };
 
-/*const TodoList = (props: Props) => {
-  const todos = [...props.todos].sort((a, b) => {
-  // ① 完了状態でソート
-  if (a.isDone !== b.isDone) {
-    return a.isDone ? 1 : -1; // 未完了が先
-  }
-
-  // ② 期限でソート
-  if (a.deadline && b.deadline) {
-    return a.deadline.getTime() - b.deadline.getTime(); // 早い方が先
-  } else if (a.deadline && !b.deadline) {
-    return -1; // 期限ありを先に
-  } else if (!a.deadline && b.deadline) {
-    return 1; // 期限なしを後に
-  }
-
-  return 0;
-});*/
-
 const TodoList = (props: Props) => {
-  const todos = props.todos;
+  const todos = props.todos; // ✅ ← ソートはしない
 
+  // ✅ 空だった場合
   if (todos.length === 0) {
     return (
       <div className="text-red-500">
-        現在、為すべきことはありません!。
+        現在、為すべきことはありません!
       </div>
     );
   }
 
+  // ✅ TodoItem の描画
   return (
-    <div className="space-y-2 ">
+    <div className="space-y-2">
       {todos.map((todo) => (
         <TodoItem
           key={todo.id}
           todo={todo}
           remove={props.remove}
           updateIsDone={props.updateIsDone}
+          updateMemo={props.updateMemo}
+          updateSubIsDone={props.updateSubIsDone}
+          addSubTodo={props.addSubTodo} 
+          removeSubTodo={props.removeSubTodo}
+          removeCompletedSubTodos = {props.removeCompletedSubTodos}
+
         />
       ))}
     </div>

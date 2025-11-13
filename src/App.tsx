@@ -8,39 +8,76 @@ import dayjs from "dayjs";
 import { twMerge } from "tailwind-merge"; // ◀◀ 追加
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // ◀◀ 追加
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"; // ◀◀ 追加
+import { sortTodos_isdone } from "./sortTodos";
+import { sortTodos_limit } from "./sortTodos";
+import { sortTodos_all } from "./sortTodos";
+import createsound from "./sound/create.mp3";
+import deletesound from "./sound/delete.mp3";
+import clicksound from "./sound/click.mp3";
+import { CircleFill } from "./CircleFill"; 
+
+
 
 
 const App = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoName, setNewTodoName] = useState("");
-  const [newTodoPriority, setNewTodoPriority] = useState("あっかーん!");
+  const [newTodoPriority, setNewTodoPriority] = useState("あっかーん!☠");
   const [newTodoDeadline, setNewTodoDeadline] = useState<Date | null>(null);
   const [newTodoNameError, setNewTodoNameError] = useState("");
   const [initialized, setInitialized] = useState(false); // ◀◀ 追加
   const localStorageKey = "TodoApp"; // ◀◀ 追加
+  const [user_LV, setUserLV] = useState(1); // ← これが「状態」
+  const [LVexp, setLVexp] = useState(0);
+  const [LV_limit, setLV_limit] = useState(50);
+  const [Exp_per, setExp_per] = useState(0);
+  
 
-   useEffect(() => {
-    const todoJsonStr = localStorage.getItem(localStorageKey);
-    if (todoJsonStr && todoJsonStr !== "[]") {
-      const storedTodos: Todo[] = JSON.parse(todoJsonStr);
-      const convertedTodos = storedTodos.map((todo) => ({
+  useEffect(() => {
+  const todoJsonStr = localStorage.getItem(localStorageKey);
+  if (todoJsonStr && todoJsonStr !== "[]") {
+    // 👇 ここで型注釈を明示
+    const storedData: { todos?: Todo[]; userLV?: number; LVexp?: number; LV_limit?: number; Exp_per : number } | Todo[] = JSON.parse(todoJsonStr);
+
+    // ✅ データ構造を考慮：todos + lv情報をまとめて保存していた場合
+    if (!Array.isArray(storedData) && storedData.todos) {
+      const convertedTodos: Todo[] = storedData.todos.map((todo) => ({
         ...todo,
         deadline: todo.deadline ? new Date(todo.deadline) : null,
       }));
       setTodos(convertedTodos);
-    } else {
-      // LocalStorage にデータがない場合は initTodos をセットする
-      setTodos(initTodos);
+      setUserLV(storedData.userLV ?? 1);
+      setLVexp(storedData.LVexp ?? 0);
+      setLV_limit(storedData.LV_limit ?? 50);
+      setExp_per(storedData.Exp_per ?? 0);
+      
+    } 
+    // ✅ 古い形式（todosだけ保存されていた場合）
+    else if (Array.isArray(storedData)) {
+      const convertedTodos: Todo[] = storedData.map((todo) => ({
+        ...todo,
+        deadline: todo.deadline ? new Date(todo.deadline) : null,
+      }));
+      setTodos(convertedTodos);
     }
-    setInitialized(true);
-  }, []);
+  }
+  setInitialized(true);
+}, []);
+
 
   // 状態 todos または initialized に変更があったときTodoデータを保存
   useEffect(() => {
-    if (initialized) {
-      localStorage.setItem(localStorageKey, JSON.stringify(todos));
-    }
-  }, [todos, initialized]);
+    if (!initialized) return; // 初期化前は保存しない
+
+    const dataToSave = {
+      todos,
+      userLV: user_LV,
+      LVexp,
+      LV_limit,
+      Exp_per
+    };
+    localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
+  }, [todos, user_LV, LVexp, LV_limit, initialized,Exp_per]);
 
   const uncompletedCount = todos.filter((todo: Todo) => !todo.isDone).length;
 
@@ -79,12 +116,23 @@ const App = () => {
       isDone: false,
       priority: newTodoPriority,
       deadline: newTodoDeadline,
+      memo:"",
+      exp : 0,
+      subTodos: [] // ← これを追加！
     };
     const updatedTodos = [...todos, newTodo];
     setTodos(updatedTodos);
     setNewTodoName("");
-    setNewTodoPriority("あっかーん!");
+    setNewTodoPriority("あっかーん!☠");
     setNewTodoDeadline(null);
+  };
+
+  const updateMemo = (id : string, newMemo: string) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+      todo.id === id ? {...todo,memo: newMemo} : todo
+  )
+);
   };
 
   const updateIsDone = (id: string, value: boolean) => {
@@ -98,30 +146,187 @@ const App = () => {
   setTodos(updatedTodos);
 };
 
+const delete_sound = new Audio(deletesound)
+const create_sound = new Audio(createsound)
+const click_sound = new Audio(clicksound)
+
+
 const removeCompletedTodos = () => {
+  const comptodos = todos.filter((todo) => todo.isDone)
+  const gainedexp = comptodos.reduce((sum,todo) => sum + (todo.exp || 0),0);
+   let exp = LVexp + gainedexp;
+  let level = user_LV;
+  let limit = LV_limit;
+
+  while (exp >= limit) {
+    exp -= limit;
+    level++;
+    limit += 50;
+  }
+
+  // ローカルで計算した結果を最後に「反映」
+  setLVexp(exp);
+  setLV_limit(limit);
+  setUserLV(level);
+
+   setExp_per(exp / limit);
+
   const updatedTodos = todos.filter((todo) => !todo.isDone);
   setTodos(updatedTodos);
+  console.log(`Lv:${level}, 残EXP:${exp}, 次Lv必要:${limit}`);
+  delete_sound.play();
 };
 
+
+const removeCompletedSubTodos = (parentId: string) => {
+  setTodos(prev =>
+    prev.map(todo =>
+      todo.id === parentId
+        ? {
+            ...todo,
+            subTodos: todo.subTodos.filter(sub => !sub.isDone), // ✅ isDoneがfalseのものを残す
+          }
+        : todo
+    )
+  );
+};
+
+
+
 const remove = (id: string) => {
+  const target = todos.find(todo => todo.id === id);
+  if (target === undefined){
+    return;
+  }
+  if (target.isDone === true){
+    let exp = LVexp + target.exp;
+  let level = user_LV;
+  let limit = LV_limit;
+
+  while (exp >= limit) {
+    exp -= limit;
+    level++;
+    limit += 50;
+  }
+
+  // ローカルで計算した結果を最後に「反映」
+  setLVexp(exp);
+  setLV_limit(limit);
+  setUserLV(level);
+  setExp_per(exp / limit);
+  }
+  
+
   const updatedTodos = todos.filter((todo) => todo.id !== id);
   setTodos(updatedTodos);
 };
 
 
+
+// サブタスクを追加
+function addSubTodo(parentId: string, name: string) {
+  setTodos((prev) =>
+    prev.map((todo) =>
+      todo.id === parentId
+        ? {
+            ...todo,
+            subTodos: [
+              ...(todo.subTodos || []),
+              {
+                id: crypto.randomUUID(),
+                name,
+                memo: "",       // 👈 忘れずに追加
+                isDone: false,  // 👈 既存と整合
+              },
+            ],
+          }
+        : todo
+    )
+  );
+}
+
+
+// サブタスク削除
+function removeSubTodo(parentId: string, subId: string) {
+  setTodos((prev) =>
+    prev.map((todo) =>
+      todo.id === parentId
+        ? {
+            ...todo,
+            subTodos: todo.subTodos?.filter((s) => s.id !== subId),
+          }
+        : todo
+    )
+  );
+}
+
+// サブタスクの完了切り替え
+function updateSubIsDone(parentId: string, subId: string) {
+  setTodos((prev) =>
+    prev.map((todo) =>
+      todo.id === parentId
+        ? {
+            ...todo,
+            subTodos: todo.subTodos?.map((s) =>
+              s.id === subId ? { ...s, isDone: !s.isDone } : s
+            ),
+          }
+        : todo
+    )
+  );
+}
+
+
+
   return (
     <div className="mx-4 mt-10 max-w-2xl md:mx-auto">
-      <h1 className="mb-4 text-2xl font-bold">TodoApp</h1>
+      <h1 className="mb-4 text-4xl font-bold text-center">やるべきことリスト</h1>
       <div className="mb-4">
         <WelcomeMessage
-          name="寝屋川タヌキ"
+          name="コッツァ"
           uncompletedCount={uncompletedCount}
         />
       </div>
-      <TodoList todos={todos} updateIsDone={updateIsDone} remove={remove} />
+      <div className="mb-4 space-x-2">
+        <button
+        type = "button"
+        onClick = {() => {
+          const sorted = sortTodos_isdone(todos);
+          click_sound.play();
+          setTodos(sorted); // ← ここで state 更新！
+        }}
+        className = "rounded-lg bg-gray-300 px-1 py-1 font-bold text-sx text-black hover:bg-gray-400"
+        >
+        完了済みでソート≡↯
+        </button>
+        <button
+        type = "button"
+        onClick = {() => {
+          const sorted = sortTodos_limit(todos);
+          click_sound.play();
+          setTodos(sorted); // ← ここで state 更新！
+        }}
+        className = "rounded-lg bg-gray-300 px-1 py-1 font-bold text-sx text-black hover:bg-gray-400"
+        >
+        期限順でソート≡↯
+        </button>
+        <button
+        type = "button"
+        onClick = {() => {
+          const sorted = sortTodos_all(todos);
+          click_sound.play();
+          setTodos(sorted); // ← ここで state 更新！
+        }}
+        className = "rounded-lg bg-gray-300 px-1 py-1 font-bold text-sx text-black hover:bg-gray-400"
+        >
+        両方でソート≡↯
+        </button>
+      </div>
+      <TodoList todos={todos} updateIsDone={updateIsDone} remove={remove} updateMemo={updateMemo} 
+      updateSubIsDone={updateSubIsDone} addSubTodo={addSubTodo} removeSubTodo={removeSubTodo}removeCompletedSubTodos={removeCompletedSubTodos}/>
 
       <div className="mt-5 space-y-2 rounded-md border p-3">
-        <h2 className="text-lg font-bold">新しいタスクの追加しよう!</h2>
+        <h2 className="text-lg font-bold">新しいタスクを追加しよう!</h2>
         {/* 編集: ここから... */}
         <div>
           <div className="flex items-center space-x-2">
@@ -154,7 +359,7 @@ const remove = (id: string) => {
 
         <div className="flex gap-5">
           <div className="font-bold">優先度</div>
-          {["やばいかも..", "やばいッ", "あっかーん!"].map((value) => (
+          {["やばいかも..🤔", "やばいッ🙃", "あっかーん!☠"].map((value) => (
             <label key={value} className="flex items-center space-x-1">
               <input
                 id={`priority-${value}`}
@@ -186,9 +391,13 @@ const remove = (id: string) => {
           />
         </div>
 
+        <div className = "space-x-2">
         <button
           type="button"
-          onClick={addNewTodo}
+          onClick={() => {
+            create_sound.play();
+            addNewTodo()}
+          }
           className={twMerge(
             "rounded-md bg-indigo-500 px-3 py-1 font-bold text-white hover:bg-indigo-600",
             newTodoNameError && "cursor-not-allowed opacity-50"
@@ -199,15 +408,24 @@ const remove = (id: string) => {
 
         <button
   type="button"
-  onClick={removeCompletedTodos}
+  onClick={() => {
+
+    removeCompletedTodos();
+
+  }}
   className={
     "mt-5 rounded-md bg-red-500 px-3 py-1 font-bold text-white hover:bg-red-600"
   }
 >
   完了済みのタスクを削除!
 </button>
+</div>
+<div className="fixed top-4 right-4 z-50 flex flex-col items-center space-y-1 rounded-full bg-indigo-400 w-24 h-28 p-3 text-white">
+  <CircleFill LVexp={Exp_per} />
+  <span className="text-sm font-bold">LV.{user_LV}</span>
+</div>
       </div>
-    </div>
+      </div>
   );
 };
 

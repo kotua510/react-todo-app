@@ -11,12 +11,11 @@ type Props = {
 // 関数コンポーネントはパスカルケースで名前を設定します。
 const WelcomeMessage = (props: Props) => {
   // いわゆる普通のロジックを記述する
-  const currentTime = new Date();
   const greeting ="おはこんばんにちは";
 
   //【重要!】JSX構文で描いた「JSX要素」を return で返す
   return (
-    <div className="text-blue-700">
+    <div className="text-blue-700 text-center text-2xl">
       {greeting}、{props.name}さん。今日も成長を楽しもう!。
     </div>
   );
