@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import type { Todo } from "./types";
 import SubTodoInput from "./SubTodoInput";
-import createsound from "./sound/create.mp3";
 import deletesound from "./sound/delete.mp3";
 import clicksound from "./sound/click.mp3";
 
@@ -10,14 +9,13 @@ type Props = {
   updateIsDone: (id: string, value: boolean) => void;
   remove: (id: string) => void;
   updateMemo: (id: string, newMemo: string) => void;
-  updateSubIsDone: (todoId: string, subId: string) => void; // ✅ 追加
+  updateSubIsDone: (todoId: string, subId: string) => void;
    addSubTodo: (parentId: string, name: string) => void;
    removeSubTodo:(parentId: string, subId: string) => void;
    removeCompletedSubTodos:(parentId: string) => void;
 };
 
 const delete_sound = new Audio(deletesound)
-const create_sound = new Audio(createsound)
 const click_sound = new Audio(clicksound)
 
 
@@ -25,9 +23,9 @@ const TodoItem = (props: Props) => {
   const { todo } = props;
 
   const [showMemo, setShowMemo] = useState(false);
-  const [showSub, setShowSub] = useState(false); // ✅ サブタスク表示用
+  const [showSub, setShowSub] = useState(false); 
   const [memoText, setMemoText] = useState(todo.memo || "");
-  const [memoPos, setMemoPos] = useState({ top: 0, left: 0 }); // ✅ メモ位置を保持
+  const [memoPos, setMemoPos] = useState({ top: 0, left: 0 }); 
 
 
 
@@ -35,10 +33,9 @@ const TodoItem = (props: Props) => {
   const toggleMemo = (event: React.MouseEvent<HTMLButtonElement>) =>{
     const rect = event.currentTarget.getBoundingClientRect();
 
-  // ページ全体のスクロールを考慮して座標を保存
   setMemoPos({
-    top: rect.top + window.scrollY + 10, // ボタンより少し下に表示
-    left: rect.left + window.scrollX - 260, // 左に260pxずらす（右に出したい場合は+に）
+    top: rect.top + window.scrollY + 10, 
+    left: rect.left + window.scrollX - 260, 
   });
     setShowMemo(!showMemo);
     click_sound.play();
@@ -48,13 +45,12 @@ const TodoItem = (props: Props) => {
   const toggleSubTasks = () => {
     setShowSub(!showSub);
     click_sound.play();
-  } // ✅ 定義
+  } 
   const saveMemo = () => {
     props.updateMemo(todo.id, memoText);
     setShowMemo(false);
   };
 
-  // 期限関係の処理
   const nowtime = new Date();
   const due = todo.deadline ? new Date(todo.deadline) : null;
 
@@ -97,7 +93,6 @@ const TodoItem = (props: Props) => {
     <div
   className={`flex flex-col rounded-md border-2 p-3 ${bg_color} transition-all duration-300`}
 >
-      {/* 1️⃣ タスクの基本部分 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
@@ -136,7 +131,7 @@ const TodoItem = (props: Props) => {
         </div>
       </div>
 
-      {/* 2️⃣ サブタスク表示部分 */}
+  
 {showSub && (
   <div className="ml-6 mt-2 space-y-1">
     {todo.subTodos.length === 0 && (
@@ -155,8 +150,6 @@ const TodoItem = (props: Props) => {
           {sub.name}
         </span>
 
-        {/* 👇 削除ボタンを追加 */}
-
 
         <button
           onClick={() => {
@@ -170,16 +163,14 @@ const TodoItem = (props: Props) => {
       </div>
     ))}
 
-    {/* 👇 子分追加欄 */}
     <SubTodoInput parentId={todo.id} addSubTodo={props.addSubTodo} removeCompletedSubTodos={props.removeCompletedSubTodos} />
   </div>
 )}
 
 
-      {/* 3️⃣ メモウィンドウ */}
       {showMemo && (
         <div className="absolute right-10 top-12 z-10 w-64 rounded-md border bg-white p-3 shadow-lg"
-        style={{ top: memoPos.top, left: memoPos.left }} // ✅ ここで動的座標適用
+        style={{ top: memoPos.top, left: memoPos.left }} 
         >
           <h3 className="font-bold mb-2">メモを書く</h3>
           <textarea

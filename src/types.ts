@@ -3,7 +3,7 @@ export type Todo = {
   name: string;
   isDone: boolean;
   priority: string;
-  deadline: Date | null; // 注意
+  deadline: Date | null;
   memo: string;
   exp: number;
   subTodos : SubTodo[];

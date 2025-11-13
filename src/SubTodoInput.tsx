@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import createsound from "./sound/create.mp3";
 import deletesound from "./sound/delete.mp3";
-import clicksound from "./sound/click.mp3"
 
 type Props = {
   parentId: string;
@@ -11,9 +10,8 @@ type Props = {
 
 const delete_sound = new Audio(deletesound)
 const create_sound = new Audio(createsound)
-const click_sound = new Audio(clicksound)
 
-const SubTodoInput = ({ parentId, addSubTodo, removeCompletedSubTodos }: Props) => { // ← ここに追加！
+const SubTodoInput = ({ parentId, addSubTodo, removeCompletedSubTodos }: Props) => {
   const [name, setName] = useState("");
 
   const handleAdd = () => {
@@ -23,7 +21,7 @@ const SubTodoInput = ({ parentId, addSubTodo, removeCompletedSubTodos }: Props) 
   };
 
   const handleRemoveCompleted = () => {
-    removeCompletedSubTodos(parentId); // ✅ これでOK
+    removeCompletedSubTodos(parentId);
   };
 
   return (

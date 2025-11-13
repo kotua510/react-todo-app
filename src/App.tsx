@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"; // ◀◀ 追加
 import type { Todo } from "./types";
-import { initTodos } from "./initTodos";
 import WelcomeMessage from "./WelcomeMessage";
 import TodoList from "./TodoList";
 import { v4 as uuid } from "uuid";
@@ -36,10 +35,9 @@ const App = () => {
   useEffect(() => {
   const todoJsonStr = localStorage.getItem(localStorageKey);
   if (todoJsonStr && todoJsonStr !== "[]") {
-    // 👇 ここで型注釈を明示
     const storedData: { todos?: Todo[]; userLV?: number; LVexp?: number; LV_limit?: number; Exp_per : number } | Todo[] = JSON.parse(todoJsonStr);
 
-    // ✅ データ構造を考慮：todos + lv情報をまとめて保存していた場合
+
     if (!Array.isArray(storedData) && storedData.todos) {
       const convertedTodos: Todo[] = storedData.todos.map((todo) => ({
         ...todo,
@@ -52,7 +50,6 @@ const App = () => {
       setExp_per(storedData.Exp_per ?? 0);
       
     } 
-    // ✅ 古い形式（todosだけ保存されていた場合）
     else if (Array.isArray(storedData)) {
       const convertedTodos: Todo[] = storedData.map((todo) => ({
         ...todo,
@@ -65,9 +62,8 @@ const App = () => {
 }, []);
 
 
-  // 状態 todos または initialized に変更があったときTodoデータを保存
   useEffect(() => {
-    if (!initialized) return; // 初期化前は保存しない
+    if (!initialized) return; 
 
     const dataToSave = {
       todos,
@@ -164,7 +160,6 @@ const removeCompletedTodos = () => {
     limit += 50;
   }
 
-  // ローカルで計算した結果を最後に「反映」
   setLVexp(exp);
   setLV_limit(limit);
   setUserLV(level);
@@ -184,7 +179,7 @@ const removeCompletedSubTodos = (parentId: string) => {
       todo.id === parentId
         ? {
             ...todo,
-            subTodos: todo.subTodos.filter(sub => !sub.isDone), // ✅ isDoneがfalseのものを残す
+            subTodos: todo.subTodos.filter(sub => !sub.isDone), 
           }
         : todo
     )
@@ -209,7 +204,7 @@ const remove = (id: string) => {
     limit += 50;
   }
 
-  // ローカルで計算した結果を最後に「反映」
+
   setLVexp(exp);
   setLV_limit(limit);
   setUserLV(level);
@@ -222,8 +217,6 @@ const remove = (id: string) => {
 };
 
 
-
-// サブタスクを追加
 function addSubTodo(parentId: string, name: string) {
   setTodos((prev) =>
     prev.map((todo) =>
@@ -235,8 +228,8 @@ function addSubTodo(parentId: string, name: string) {
               {
                 id: crypto.randomUUID(),
                 name,
-                memo: "",       // 👈 忘れずに追加
-                isDone: false,  // 👈 既存と整合
+                memo: "",       
+                isDone: false,  
               },
             ],
           }
@@ -246,7 +239,6 @@ function addSubTodo(parentId: string, name: string) {
 }
 
 
-// サブタスク削除
 function removeSubTodo(parentId: string, subId: string) {
   setTodos((prev) =>
     prev.map((todo) =>
@@ -260,7 +252,6 @@ function removeSubTodo(parentId: string, subId: string) {
   );
 }
 
-// サブタスクの完了切り替え
 function updateSubIsDone(parentId: string, subId: string) {
   setTodos((prev) =>
     prev.map((todo) =>
@@ -293,7 +284,7 @@ function updateSubIsDone(parentId: string, subId: string) {
         onClick = {() => {
           const sorted = sortTodos_isdone(todos);
           click_sound.play();
-          setTodos(sorted); // ← ここで state 更新！
+          setTodos(sorted); 
         }}
         className = "rounded-lg bg-gray-300 px-1 py-1 font-bold text-sx text-black hover:bg-gray-400"
         >
@@ -304,7 +295,7 @@ function updateSubIsDone(parentId: string, subId: string) {
         onClick = {() => {
           const sorted = sortTodos_limit(todos);
           click_sound.play();
-          setTodos(sorted); // ← ここで state 更新！
+          setTodos(sorted); 
         }}
         className = "rounded-lg bg-gray-300 px-1 py-1 font-bold text-sx text-black hover:bg-gray-400"
         >
@@ -315,7 +306,7 @@ function updateSubIsDone(parentId: string, subId: string) {
         onClick = {() => {
           const sorted = sortTodos_all(todos);
           click_sound.play();
-          setTodos(sorted); // ← ここで state 更新！
+          setTodos(sorted); 
         }}
         className = "rounded-lg bg-gray-300 px-1 py-1 font-bold text-sx text-black hover:bg-gray-400"
         >
@@ -327,7 +318,6 @@ function updateSubIsDone(parentId: string, subId: string) {
 
       <div className="mt-5 space-y-2 rounded-md border p-3">
         <h2 className="text-lg font-bold">新しいタスクを追加しよう!</h2>
-        {/* 編集: ここから... */}
         <div>
           <div className="flex items-center space-x-2">
             <label className="font-bold" htmlFor="newTodoName">
@@ -355,7 +345,6 @@ function updateSubIsDone(parentId: string, subId: string) {
             </div>
           )}
         </div>
-        {/* ...ここまで */}
 
         <div className="flex gap-5">
           <div className="font-bold">優先度</div>
@@ -367,7 +356,7 @@ function updateSubIsDone(parentId: string, subId: string) {
                 type="radio"
                 value={value}
                 checked={newTodoPriority === value}
-                onChange={(e) => setNewTodoPriority(e.target.value)} // ← 直接更新
+                onChange={(e) => setNewTodoPriority(e.target.value)}
               />
               <span>{value}</span>
             </label>
