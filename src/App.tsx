@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react"; // ◀◀ 追加
+import { useState, useEffect } from "react";
 import type { Todo } from "./types";
 import WelcomeMessage from "./WelcomeMessage";
 import TodoList from "./TodoList";
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
-import { twMerge } from "tailwind-merge"; // ◀◀ 追加
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // ◀◀ 追加
-import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"; // ◀◀ 追加
+import { twMerge } from "tailwind-merge";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { sortTodos_isdone } from "./sortTodos";
 import { sortTodos_limit } from "./sortTodos";
 import { sortTodos_all } from "./sortTodos";
@@ -24,9 +24,9 @@ const App = () => {
   const [newTodoPriority, setNewTodoPriority] = useState("あっかーん!☠");
   const [newTodoDeadline, setNewTodoDeadline] = useState<Date | null>(null);
   const [newTodoNameError, setNewTodoNameError] = useState("");
-  const [initialized, setInitialized] = useState(false); // ◀◀ 追加
-  const localStorageKey = "TodoApp"; // ◀◀ 追加
-  const [user_LV, setUserLV] = useState(1); // ← これが「状態」
+  const [initialized, setInitialized] = useState(false);
+  const localStorageKey = "TodoApp";
+  const [user_LV, setUserLV] = useState(1);
   const [LVexp, setLVexp] = useState(0);
   const [LV_limit, setLV_limit] = useState(50);
   const [Exp_per, setExp_per] = useState(0);
@@ -77,7 +77,6 @@ const App = () => {
 
   const uncompletedCount = todos.filter((todo: Todo) => !todo.isDone).length;
 
-  // ▼▼ 追加
   const isValidTodoName = (name: string): string => {
     if (name.length < 2 || name.length > 32) {
       return "2文字以上、32文字以内で入力してください";
@@ -87,7 +86,7 @@ const App = () => {
   };
 
   const updateNewTodoName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodoNameError(isValidTodoName(e.target.value)); // ◀◀ 追加
+    setNewTodoNameError(isValidTodoName(e.target.value));
     setNewTodoName(e.target.value);
   };
 
@@ -95,12 +94,10 @@ const App = () => {
 
   const updateDeadline = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dt = e.target.value; // UIで日時が未設定のときは空文字列 "" が dt に格納される
-    console.log(`UI操作で日時が "${dt}" (${typeof dt}型) に変更されました。`);
     setNewTodoDeadline(dt === "" ? null : new Date(dt));
   };
 
   const addNewTodo = () => {
-    // ▼▼ 編集
     const err = isValidTodoName(newTodoName);
     if (err !== "") {
       setNewTodoNameError(err);
@@ -114,7 +111,7 @@ const App = () => {
       deadline: newTodoDeadline,
       memo:"",
       exp : 0,
-      subTodos: [] // ← これを追加！
+      subTodos: []
     };
     const updatedTodos = [...todos, newTodo];
     setTodos(updatedTodos);
@@ -168,7 +165,6 @@ const removeCompletedTodos = () => {
 
   const updatedTodos = todos.filter((todo) => !todo.isDone);
   setTodos(updatedTodos);
-  console.log(`Lv:${level}, 残EXP:${exp}, 次Lv必要:${limit}`);
   delete_sound.play();
 };
 

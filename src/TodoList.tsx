@@ -1,4 +1,3 @@
-import React from "react";
 import type { Todo } from "./types";
 import TodoItem from "./TodoItem";
 
@@ -7,7 +6,7 @@ type Props = {
   updateIsDone: (id: string, value: boolean) => void;
   remove: (id: string) => void;
   updateMemo: (id: string, newMemo: string) => void;
-  updateSubIsDone: (todoId: string, subId: string) => void; // ← 追加！
+  updateSubIsDone: (todoId: string, subId: string) => void;
   addSubTodo: (parentId: string, name: string) => void;
   removeSubTodo:(parentId: string, subId: string) => void;
   removeCompletedSubTodos:(parentId: string) => void;
