@@ -16,8 +16,6 @@ import clicksound from "./sound/click.mp3";
 import { CircleFill } from "./CircleFill"; 
 
 
-
-
 const App = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodoName, setNewTodoName] = useState("");
@@ -30,13 +28,11 @@ const App = () => {
   const [LVexp, setLVexp] = useState(0);
   const [LV_limit, setLV_limit] = useState(50);
   const [Exp_per, setExp_per] = useState(0);
-  
 
   useEffect(() => {
   const todoJsonStr = localStorage.getItem(localStorageKey);
   if (todoJsonStr && todoJsonStr !== "[]") {
     const storedData: { todos?: Todo[]; userLV?: number; LVexp?: number; LV_limit?: number; Exp_per : number } | Todo[] = JSON.parse(todoJsonStr);
-
 
     if (!Array.isArray(storedData) && storedData.todos) {
       const convertedTodos: Todo[] = storedData.todos.map((todo) => ({
@@ -61,7 +57,6 @@ const App = () => {
   setInitialized(true);
 }, []);
 
-
   useEffect(() => {
     if (!initialized) return; 
 
@@ -76,7 +71,6 @@ const App = () => {
   }, [todos, user_LV, LVexp, LV_limit, initialized,Exp_per]);
 
   const uncompletedCount = todos.filter((todo: Todo) => !todo.isDone).length;
-
   const isValidTodoName = (name: string): string => {
     if (name.length < 2 || name.length > 32) {
       return "2文字以上、32文字以内で入力してください";
@@ -89,8 +83,6 @@ const App = () => {
     setNewTodoNameError(isValidTodoName(e.target.value));
     setNewTodoName(e.target.value);
   };
-
-
 
   const updateDeadline = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dt = e.target.value; // UIで日時が未設定のときは空文字列 "" が dt に格納される
@@ -143,11 +135,10 @@ const delete_sound = new Audio(deletesound)
 const create_sound = new Audio(createsound)
 const click_sound = new Audio(clicksound)
 
-
 const removeCompletedTodos = () => {
   const comptodos = todos.filter((todo) => todo.isDone)
   const gainedexp = comptodos.reduce((sum,todo) => sum + (todo.exp || 0),0);
-   let exp = LVexp + gainedexp;
+  let exp = LVexp + gainedexp;
   let level = user_LV;
   let limit = LV_limit;
 
@@ -160,8 +151,7 @@ const removeCompletedTodos = () => {
   setLVexp(exp);
   setLV_limit(limit);
   setUserLV(level);
-
-   setExp_per(exp / limit);
+  setExp_per(exp / limit);
 
   const updatedTodos = todos.filter((todo) => !todo.isDone);
   setTodos(updatedTodos);
@@ -181,8 +171,6 @@ const removeCompletedSubTodos = (parentId: string) => {
     )
   );
 };
-
-
 
 const remove = (id: string) => {
   const target = todos.find(todo => todo.id === id);
@@ -211,7 +199,6 @@ const remove = (id: string) => {
   const updatedTodos = todos.filter((todo) => todo.id !== id);
   setTodos(updatedTodos);
 };
-
 
 function addSubTodo(parentId: string, name: string) {
   setTodos((prev) =>
@@ -262,8 +249,6 @@ function updateSubIsDone(parentId: string, subId: string) {
     )
   );
 }
-
-
 
   return (
     <div className="mx-4 mt-10 max-w-2xl md:mx-auto">

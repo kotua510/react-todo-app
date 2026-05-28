@@ -21,7 +21,6 @@ export function sortTodos_isdone(todos: Todo[]) {
 export function sortTodos_limit(todos: Todo[]) {
   return [...todos].sort((a, b) => {
 
-
     if (a.deadline && b.deadline) {
       return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
     } else if (a.deadline && !b.deadline) {
@@ -33,7 +32,6 @@ export function sortTodos_limit(todos: Todo[]) {
     return 0;
   });
 }
-
 
 export function sortTodos_all(todos: Todo[]) {
   return [...todos].sort((a, b) => {
@@ -52,4 +50,3 @@ export function sortTodos_all(todos: Todo[]) {
     return 0;
   });
 }
-

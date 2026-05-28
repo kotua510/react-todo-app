@@ -10,10 +10,8 @@ type Props = {
 
 const delete_sound = new Audio(deletesound)
 const create_sound = new Audio(createsound)
-
 const SubTodoInput = ({ parentId, addSubTodo, removeCompletedSubTodos }: Props) => {
   const [name, setName] = useState("");
-
   const handleAdd = () => {
     if (!name.trim()) return;
     addSubTodo(parentId, name.trim());

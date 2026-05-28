@@ -18,17 +18,12 @@ type Props = {
 const delete_sound = new Audio(deletesound)
 const click_sound = new Audio(clicksound)
 
-
 const TodoItem = (props: Props) => {
   const { todo } = props;
-
   const [showMemo, setShowMemo] = useState(false);
   const [showSub, setShowSub] = useState(false); 
   const [memoText, setMemoText] = useState(todo.memo || "");
   const [memoPos, setMemoPos] = useState({ top: 0, left: 0 }); 
-
-
-
 
   const toggleMemo = (event: React.MouseEvent<HTMLButtonElement>) =>{
     const rect = event.currentTarget.getBoundingClientRect();
@@ -41,7 +36,6 @@ const TodoItem = (props: Props) => {
     click_sound.play();
   } 
 
-  
   const toggleSubTasks = () => {
     setShowSub(!showSub);
     click_sound.play();
@@ -53,7 +47,6 @@ const TodoItem = (props: Props) => {
 
   const nowtime = new Date();
   const due = todo.deadline ? new Date(todo.deadline) : null;
-
 
   let bg_color = "";
   let protext = "";
@@ -131,7 +124,7 @@ const TodoItem = (props: Props) => {
         </div>
       </div>
 
-  
+
 {showSub && (
   <div className="ml-6 mt-2 space-y-1">
     {todo.subTodos.length === 0 && (
@@ -166,7 +159,6 @@ const TodoItem = (props: Props) => {
     <SubTodoInput parentId={todo.id} addSubTodo={props.addSubTodo} removeCompletedSubTodos={props.removeCompletedSubTodos} />
   </div>
 )}
-
 
       {showMemo && (
         <div className="absolute right-10 top-12 z-10 w-64 rounded-md border bg-white p-3 shadow-lg"
